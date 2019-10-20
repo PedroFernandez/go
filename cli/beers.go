@@ -1,8 +1,10 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 type CobraFn func(cmd *cobra.Command, args []string)
@@ -29,12 +31,18 @@ func InitBeersCmd() *cobra.Command {
 
 func runBeersfn() CobraFn {
 	return func(cmd *cobra.Command, args []string) {
-		id, _ := cmd.Flags().GetString(idFlag)
+		f, _ := os.Open("data/beers.csv")
+		reader := bufio.NewReader(f)
 
-		if id != "" {
-			fmt.Println(beers[id])
-		} else {
-			fmt.Println(beers)
+		for line := readLine(reader); line != nil; line = readLine(reader){
+			fmt.Println("line (as bytes): %v\n", line)
+			fmt.Println("line (as string): %v\n", string(line))
+			break
 		}
 	}
+}
+
+func readLine(reader *bufio.Reader) (line[]byte) {
+	line, _, _= reader.ReadLine()
+	return
 }
