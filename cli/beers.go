@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type CobraFn func(cmd *cobra.Command, args []string)
@@ -34,10 +36,22 @@ func runBeersfn() CobraFn {
 		f, _ := os.Open("data/beers.csv")
 		reader := bufio.NewReader(f)
 
+		var beers = make(map[int]string)
+
 		for line := readLine(reader); line != nil; line = readLine(reader){
-			fmt.Println("line (as bytes): %v\n", line)
-			fmt.Println("line (as string): %v\n", string(line))
-			break
+			values := strings.Split(string(line), ",")
+
+			productID, _ := strconv.Atoi(values[0])
+			beers[productID] = values[1]
+
+			id, _ := cmd.Flags().GetString(idFlag)
+
+			if id != "" {
+				i, _ := strconv.Atoi(id)
+				fmt.Println(beers[i])
+			} else {
+				fmt.Println(beers)
+			}
 		}
 	}
 }
